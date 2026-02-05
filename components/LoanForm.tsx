@@ -20,7 +20,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
   const [photo, setPhoto] = useState<string | undefined>(undefined);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
+  const [isLoadingInsight, setIsLoadingInsight] = useState(false);
   const [insight, setInsight] = useState<SmartTip | null>(null);
   
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -31,11 +31,11 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
     const trimmedItem = item.trim();
     if (trimmedItem.length < 3) {
       setInsight(null);
-      setIsTyping(false);
+      setIsLoadingInsight(false);
       return;
     }
 
-    setIsTyping(true);
+    setIsLoadingInsight(true);
 
     const timeoutId = setTimeout(async () => {
       try {
@@ -44,9 +44,9 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
       } catch (err) {
         console.error("KI-Insight Fehler:", err);
       } finally {
-        setIsTyping(false);
+        setIsLoadingInsight(false);
       }
-    }, 800); 
+    }, 1000); 
 
     return () => clearTimeout(timeoutId);
   }, [item]);
@@ -72,7 +72,6 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
 
     setIsSubmitting(true);
     
-    // Transaktion mit KI-Daten anreichern, falls vorhanden
     const newTransaction: Transaction = {
       id: Math.random().toString(36).substr(2, 9),
       type,
@@ -82,7 +81,6 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
       remarks,
       photo,
       timestamp: Date.now(),
-      // Diese Felder werden jetzt mit in die DB gespeichert
       category: insight?.category,
       safetyNote: insight?.safetyNote,
       quickGuide: insight?.quickGuide
@@ -134,38 +132,52 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
 
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">Gegenstand</label>
-          <div className="relative">
-            <input 
-              type="text" 
-              required 
-              placeholder="Was leihst du aus?" 
-              value={item} 
-              onChange={(e) => setItem(e.target.value)} 
-              className="w-full rounded-lg bg-[#3d3b3c] border-[#f5ff00]/30 text-white placeholder-gray-500 shadow-sm border px-3 py-2 outline-none focus:border-[#f5ff00]/60 transition-colors" 
-            />
-            {isTyping && (
-              <div className="absolute right-3 top-2.5 flex items-center">
-                <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+          <input 
+            type="text" 
+            required 
+            placeholder="z.B. Kamera Sony A7III" 
+            value={item} 
+            onChange={(e) => setItem(e.target.value)} 
+            className="w-full rounded-lg bg-[#3d3b3c] border-[#f5ff00]/30 text-white placeholder-gray-500 shadow-sm border px-3 py-2 outline-none focus:border-[#f5ff00]/60 transition-colors" 
+          />
+          
+          {/* DEDIZIERTE SMART-INFO-AREA */}
+          <div className="mt-3 min-h-[80px] rounded-xl border border-white/5 bg-black/20 p-4 transition-all overflow-hidden relative">
+            {isLoadingInsight ? (
+              <div className="flex flex-col items-center justify-center space-y-2 py-2">
+                <div className="flex space-x-1">
+                  <div className="w-1.5 h-1.5 bg-[#f5ff00] rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                  <div className="w-1.5 h-1.5 bg-[#f5ff00] rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                  <div className="w-1.5 h-1.5 bg-[#f5ff00] rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                </div>
+                <span className="text-[10px] text-[#f5ff00]/50 font-black uppercase tracking-widest">KI Analysiert...</span>
+              </div>
+            ) : insight ? (
+              <div className="animate-fade-in space-y-2">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[9px] font-black text-[#f5ff00] uppercase tracking-tighter bg-[#f5ff00]/10 px-2 py-0.5 rounded">
+                    {insight.category}
+                  </span>
+                  <span className="text-[8px] text-gray-600 font-bold uppercase tracking-[0.2em]">Smart Hint</span>
+                </div>
+                <div className="space-y-1.5">
+                  <p className="text-xs text-white leading-relaxed font-medium italic">
+                    "{insight.quickGuide}"
+                  </p>
+                  <div className="flex items-center space-x-2 text-rose-400 bg-rose-400/5 px-2 py-1 rounded border border-rose-400/10">
+                    <span className="text-[10px]">⚠️</span>
+                    <p className="text-[10px] font-bold leading-tight">{insight.safetyNote}</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-4 text-center">
+                <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest leading-none">
+                  {item.length < 3 ? "Warte auf Eingabe..." : "Keine Details gefunden"}
+                </p>
               </div>
             )}
           </div>
-          
-          {insight && (
-            <div className="mt-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 animate-fade-in shadow-[0_4px_20px_rgba(16,185,129,0.05)]">
-              <div className="flex items-start space-x-2">
-                <span className="text-emerald-400 text-sm mt-0.5">✨</span>
-                <div className="text-[11px] text-emerald-50/90 leading-tight italic">
-                  <span className="font-bold text-emerald-400 not-italic uppercase tracking-tighter mr-2">[{insight.category}]</span>
-                  "{insight.quickGuide}"
-                  {insight.safetyNote && (
-                    <div className="mt-1 text-emerald-400 font-bold not-italic flex items-center">
-                      <span className="mr-1">⚠️</span> {insight.safetyNote}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         <div>
