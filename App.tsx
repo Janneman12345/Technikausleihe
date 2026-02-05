@@ -37,21 +37,17 @@ const App: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h2 className="text-3xl font-black text-white uppercase mb-4 tracking-tight">Fast fertig!</h2>
-            <p className="text-gray-400 mb-8">Damit deine Daten sicher in der Cloud gespeichert werden können, fehlen noch zwei kleine Einstellungen in <strong>Vercel</strong>:</p>
+            <h2 className="text-3xl font-black text-white uppercase mb-4 tracking-tight">Cloud-Setup fehlt</h2>
+            <p className="text-gray-400 mb-8">Damit deine Daten sicher in der Cloud gespeichert werden können, fehlen noch die Umgebungsvariablen in <strong>Vercel</strong>:</p>
             
             <div className="text-left space-y-4 mb-10">
               <div className="flex items-start space-x-4">
                 <div className="bg-[#f5ff00] text-[#333132] font-bold rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-1">1</div>
-                <p className="text-sm text-gray-300">Gehe zu <strong>supabase.com</strong>, erstelle ein Projekt und kopiere unter Settings &gt; API die <strong>URL</strong> und den <strong>anon key</strong>.</p>
+                <p className="text-sm text-gray-300">Füge <code className="text-[#f5ff00]">SUPABASE_URL</code> hinzu.</p>
               </div>
               <div className="flex items-start space-x-4">
                 <div className="bg-[#f5ff00] text-[#333132] font-bold rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-1">2</div>
-                <p className="text-sm text-gray-300">Öffne dein Projekt in <strong>Vercel</strong> &gt; Settings &gt; Environment Variables.</p>
-              </div>
-              <div className="flex items-start space-x-4">
-                <div className="bg-[#f5ff00] text-[#333132] font-bold rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-1">3</div>
-                <p className="text-sm text-gray-300">Füge <code className="text-[#f5ff00]">SUPABASE_URL</code> und <code className="text-[#f5ff00]">SUPABASE_ANON_KEY</code> hinzu und klicke auf <strong>Redeploy</strong> unter dem Tab Deployments.</p>
+                <p className="text-sm text-gray-300">Füge <code className="text-[#f5ff00]">SUPABASE_ANON_KEY</code> hinzu.</p>
               </div>
             </div>
 
@@ -80,19 +76,19 @@ const App: React.FC = () => {
   }
 
   const addTransaction = async (t: Transaction) => {
-    // Optimistisches Update: Erst in der UI anzeigen
+    // Optimistisches Update: Erst in der UI anzeigen für sofortiges Feedback
     setTransactions(prev => [t, ...prev]);
     
     try {
       const success = await databaseService.saveTransaction(t);
       if (!success) {
-        // Falls es wirklich ein Fehler war, Rollback und Meldung
-        console.error("Speichern fehlgeschlagen.");
-        alert("Fehler beim Speichern in der Cloud. Die Internetverbindung könnte gestört sein.");
+        // Nur wenn es wirklich fehlgeschlagen ist, Rollback
+        console.warn("Speichern wurde vom Service als fehlgeschlagen markiert.");
+        alert("Fehler beim Cloud-Sync. Bitte prüfe die Internetverbindung. Der Eintrag wurde lokal zurückgesetzt.");
         setTransactions(prev => prev.filter(item => item.id !== t.id));
       }
     } catch (e) {
-      console.error("Exception beim Speichern:", e);
+      console.error("Unerwarteter Fehler im addTransaction-Ablauf:", e);
       setTransactions(prev => prev.filter(item => item.id !== t.id));
     }
   };
@@ -103,7 +99,7 @@ const App: React.FC = () => {
       setTransactions(prev => prev.filter(t => t.id !== id));
       const success = await databaseService.deleteTransaction(id);
       if (!success) {
-        alert("Löschen fehlgeschlagen.");
+        alert("Löschen fehlgeschlagen. Bitte erneut versuchen.");
         setTransactions(originalTransactions);
       }
     }
