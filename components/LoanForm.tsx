@@ -26,19 +26,26 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  // Live-AI Tipps mit Debounce
+  // Live-AI Tipps mit robustem Loading-Management
   useEffect(() => {
     if (item.trim().length < 3) {
       setInsight(null);
+      setIsTyping(false);
       return;
     }
 
-    setIsTyping(true);
     const timeoutId = setTimeout(async () => {
-      const result = await getSmartInsight(item);
-      setInsight(result);
-      setIsTyping(false);
-    }, 600);
+      setIsTyping(true);
+      try {
+        const result = await getSmartInsight(item);
+        setInsight(result);
+      } catch (err) {
+        console.error("Error fetching insights:", err);
+        setInsight(null);
+      } finally {
+        setIsTyping(false);
+      }
+    }, 800);
 
     return () => clearTimeout(timeoutId);
   }, [item]);

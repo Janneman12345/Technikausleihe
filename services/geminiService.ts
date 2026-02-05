@@ -8,29 +8,31 @@ export const getSmartInsight = async (itemName: string): Promise<SmartTip | null
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Gib mir kurze Technik-Tipps für folgendes Gerät: "${itemName}". 
-      WICHTIG: Sprich den Nutzer immer mit "du" an (informell). Beantworte in Deutsch.`,
+      contents: `Erstelle technische Kurzinformationen für das Gerät: "${itemName}".
+      Anforderungen:
+      1. Sprache: Deutsch, informell ("du").
+      2. Format: Strenges JSON.
+      3. Felder: "category" (z.B. Audio, Video), "safetyNote" (ein kurzer Warnhinweis), "quickGuide" (ein praktischer Bedien-Tipp).`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            category: { type: Type.STRING, description: "Kategorie (z.B. Kamera)" },
-            safetyNote: { type: Type.STRING, description: "Ein kurzer Sicherheitshinweis" },
-            quickGuide: { type: Type.STRING, description: "Ein 1-Satz Quick-Start Tipp" }
+            category: { type: Type.STRING },
+            safetyNote: { type: Type.STRING },
+            quickGuide: { type: Type.STRING }
           },
           required: ["category", "safetyNote", "quickGuide"]
         }
       }
     });
 
-    let generatedText = response.text;
-    if (generatedText) {
-      // Falls das Modell Markdown-Code-Blocks zurückgibt, diese entfernen
-      generatedText = generatedText.replace(/```json/g, '').replace(/```/g, '').trim();
-      return JSON.parse(generatedText) as SmartTip;
+    const text = response.text;
+    if (text) {
+      // Entferne potentielle Markdown-Code-Blöcke, falls das Modell sie trotz JSON-Modus liefert
+      const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      return JSON.parse(cleanJson) as SmartTip;
     }
-    
     return null;
   } catch (error) {
     console.error("Gemini Error:", error);

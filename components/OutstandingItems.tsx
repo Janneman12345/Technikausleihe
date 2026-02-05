@@ -28,7 +28,7 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
                   }}
                   className="h-16 w-16 rounded-lg overflow-hidden flex-shrink-0 border border-[#f5ff00]/10 bg-black cursor-zoom-in group-hover:ring-2 ring-emerald-500/50 transition-all shadow-xl"
                 >
-                  <img src={item.photo} alt={item.item} className="h-full w-full object-cover" />
+                  <img src={item.photo} alt={item.item} className="h-full w-full object-cover pointer-events-none" />
                 </div>
               ) : (
                 <div className="h-16 w-16 rounded-lg bg-[#333132] flex items-center justify-center flex-shrink-0 border border-white/5 text-gray-700">
@@ -65,7 +65,7 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
         ))}
       </div>
 
-      {/* Image-Only Lightbox Modal */}
+      {/* Reines Bild-Zoom Lightbox Modal */}
       {selectedImage && (
         <div 
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-10 bg-black/95 backdrop-blur-xl animate-fade-in"
