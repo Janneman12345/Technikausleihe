@@ -58,23 +58,11 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
                 </div>
               </div>
             </div>
-
-            {/* Smart Tip in Card */}
-            {(item.quickGuide || item.safetyNote) && (
-              <div className="bg-emerald-500/5 rounded-lg p-2.5 text-[10px] border border-emerald-500/20">
-                <div className="flex items-center text-emerald-400 font-bold uppercase tracking-wider mb-1">
-                  <span className="mr-1">✨</span> KI-Tipp
-                </div>
-                <p className="text-gray-400 leading-snug line-clamp-2 italic">
-                  "{item.quickGuide || item.safetyNote}"
-                </p>
-              </div>
-            )}
           </div>
         ))}
       </div>
 
-      {/* FULLSCREEN BILD-ZOOM MODAL - MAXIMALER Z-INDEX (99999) */}
+      {/* FULLSCREEN BILD-ZOOM MODAL */}
       {selectedImage && (
         <div 
           className="fixed inset-0 flex items-center justify-center p-4 bg-black/95 backdrop-blur-3xl animate-fade-in transition-all"
@@ -82,7 +70,7 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
           onClick={() => setSelectedImage(null)}
         >
           <div className="relative w-full h-full flex items-center justify-center">
-            {/* Schließen Button (Oben Rechts) */}
+            {/* Schließen Button */}
             <button 
               className="absolute top-4 right-4 sm:top-8 sm:right-8 p-4 bg-white/10 hover:bg-[#f5ff00] hover:text-black rounded-full transition-all text-white border border-white/10 group flex items-center space-x-2 z-[1000000]"
               onClick={(e) => {
@@ -96,18 +84,12 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
               </svg>
             </button>
             
-            {/* Das Bild selbst */}
             <img 
               src={selectedImage} 
               alt="Großansicht" 
               className="max-w-[98vw] max-h-[90vh] sm:max-w-[90vw] sm:max-h-[85vh] object-contain rounded-xl shadow-[0_0_150px_rgba(0,0,0,1)] animate-zoom-in ring-2 ring-white/5"
               onClick={(e) => e.stopPropagation()}
             />
-            
-            {/* Hilfsklick-Hinweis (Desktop) */}
-            <div className="hidden sm:block absolute bottom-8 text-white/20 text-[10px] uppercase font-bold tracking-[0.4em]">
-              ESC oder Klick zum Schließen
-            </div>
           </div>
         </div>
       )}

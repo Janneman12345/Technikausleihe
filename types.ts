@@ -13,10 +13,6 @@ export interface Transaction {
   remarks: string;
   photo?: string;
   timestamp: number;
-  // KI-Tipps Felder
-  category?: string;
-  safetyNote?: string;
-  quickGuide?: string;
 }
 
 export interface SmartTip {

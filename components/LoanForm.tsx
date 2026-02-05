@@ -26,7 +26,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  // KI-Logik: Reagiert auf Eingabe mit 1 Sekunde Verzögerung
+  // KI-Hilfe: Nur als temporäre Anzeige beim Ausfüllen
   useEffect(() => {
     const trimmedItem = item.trim();
     if (trimmedItem.length < 3) {
@@ -40,14 +40,13 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
     const timeoutId = setTimeout(async () => {
       try {
         const result = await getSmartInsight(trimmedItem);
-        // Auch wenn result null ist, setzen wir isTyping auf false
         setInsight(result);
       } catch (err) {
-        console.error("Fehler im Insight-Loop:", err);
+        console.error("KI-Fehler:", err);
       } finally {
         setIsTyping(false);
       }
-    }, 1000); 
+    }, 800); 
 
     return () => clearTimeout(timeoutId);
   }, [item]);
@@ -81,9 +80,6 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
       remarks,
       photo,
       timestamp: Date.now(),
-      category: insight?.category,
-      safetyNote: insight?.safetyNote,
-      quickGuide: insight?.quickGuide,
     };
 
     setTimeout(() => {
@@ -130,7 +126,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
           </select>
         </div>
 
-        <div className="relative">
+        <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">Gegenstand</label>
           <div className="relative">
             <input 
@@ -148,30 +144,21 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
             )}
           </div>
           
-          {/* Smaragd-Grüne KI-Box (Sichtbar beim Laden und bei Erfolg) */}
-          {(isTyping || insight) && (
-            <div className={`mt-3 p-4 rounded-xl border transition-all duration-500 ${isTyping ? 'bg-emerald-500/5 border-emerald-500/20 animate-pulse' : 'bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.1)]'}`}>
-              {isTyping ? (
-                <div className="flex items-center space-x-3 text-emerald-400/60">
-                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-[10px] font-black uppercase tracking-widest">Analysiere Gerät...</span>
+          {/* KI-Antwort direkt unter dem Feld Geräte/Gegenstand */}
+          {insight && (
+            <div className="mt-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 animate-fade-in">
+              <div className="flex items-start space-x-2">
+                <span className="text-emerald-400 text-sm mt-0.5">✨</span>
+                <div className="text-[11px] text-emerald-50/90 leading-tight italic">
+                  <span className="font-bold text-emerald-400 not-italic uppercase tracking-tighter mr-2">[{insight.category}]</span>
+                  "{insight.quickGuide}"
+                  {insight.safetyNote && (
+                    <div className="mt-1 text-emerald-400 font-bold not-italic">
+                      ⚠️ {insight.safetyNote}
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="space-y-2 animate-fade-in">
-                  <div className="flex items-center space-x-2 text-emerald-400">
-                    <span className="text-base">✨</span>
-                    <span className="text-[10px] font-black uppercase tracking-widest">{insight?.category || 'Technik'}</span>
-                  </div>
-                  <div className="text-xs text-emerald-50/90 leading-relaxed italic border-l-2 border-emerald-500/20 pl-3">
-                    <p className="mb-1.5 font-medium">"{insight?.quickGuide}"</p>
-                    {insight?.safetyNote && (
-                      <p className="text-emerald-400 font-bold not-italic text-[10px] uppercase tracking-wide flex items-center">
-                        <span className="mr-1">⚠️</span> {insight.safetyNote}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           )}
         </div>
