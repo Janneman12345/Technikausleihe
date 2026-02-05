@@ -2,18 +2,36 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { SmartTip } from "../types";
 
+/**
+ * Hilfsfunktion um potentielle Markdown-Formatierungen aus der KI-Antwort zu entfernen
+ */
+const sanitizeJson = (text: string): string => {
+  return text.replace(/```json/g, "").replace(/```/g, "").trim();
+};
+
 export const getSmartInsight = async (itemName: string): Promise<SmartTip | null> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = process.env.API_KEY;
+  
+  if (!apiKey || apiKey === 'undefined') {
+    console.warn("Gemini API Key fehlt!");
+    return null;
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
   
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Analysiere das Gerät: "${itemName}".
-      Antworte STRENG im JSON-Format.
-      Felder:
-      "category": (Gattung des Geräts, max 2 Worte),
-      "safetyNote": (Ein wichtiger Sicherheitshinweis in der Du-Form),
-      "quickGuide": (Ein kurzer Profi-Tipp für die Bedienung in der Du-Form).`,
+      contents: `Du bist ein Technik-Experte. Analysiere dieses Gerät: "${itemName}".
+      Erstelle hilfreiche Informationen für einen Verleih-Service.
+      Antworte AUSSCHLIESSLICH im JSON-Format.
+      
+      Struktur:
+      {
+        "category": "Gattung (z.B. Audio, Foto, Licht)",
+        "safetyNote": "Ein kurzer, kritischer Sicherheitshinweis (Du-Form)",
+        "quickGuide": "Ein Profi-Bedien-Tipp für beste Ergebnisse (Du-Form)"
+      }`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -28,21 +46,24 @@ export const getSmartInsight = async (itemName: string): Promise<SmartTip | null
       }
     });
 
-    const text = response.text;
-    if (!text) throw new Error("Keine Antwort von Gemini");
+    const rawText = response.text;
+    if (!rawText) throw new Error("Keine Antwort erhalten");
 
-    const parsed = JSON.parse(text);
+    const cleanJson = sanitizeJson(rawText);
+    const parsed = JSON.parse(cleanJson);
+
     return {
       category: parsed.category || "Technik",
-      safetyNote: parsed.safetyNote || "Keine besonderen Hinweise.",
-      quickGuide: parsed.quickGuide || "Normaler Betrieb."
+      safetyNote: parsed.safetyNote || "Keine besonderen Sicherheitsrisiken bekannt.",
+      quickGuide: parsed.quickGuide || "Gerät gemäß Standard-Handbuch verwenden."
     };
   } catch (error) {
-    console.error("Gemini API Error:", error);
+    console.error("Gemini Fehler Details:", error);
+    // Fallback bei Fehlern, damit die UI nicht leer bleibt
     return {
       category: "Gerät",
-      safetyNote: "Bitte vorsichtig handhaben.",
-      quickGuide: "Standard-Bedienung."
+      safetyNote: "Bitte auf allgemeine elektrische Sicherheit achten.",
+      quickGuide: "Bei Fragen zur Bedienung bitte Jan kontaktieren."
     };
   }
 };
