@@ -68,15 +68,6 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
                 </div>
               </div>
             </div>
-
-            {item.handlingTip && (
-              <div className="bg-emerald-500/10 border-l-2 border-emerald-500/40 p-3 rounded-r-lg">
-                <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1 flex items-center">
-                   <span className="mr-1.5">🛡️</span> Langlebigkeits-Check
-                </p>
-                <p className="text-xs text-white/90 leading-tight italic font-medium">"{item.handlingTip}"</p>
-              </div>
-            )}
           </div>
         ))}
       </div>
