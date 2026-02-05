@@ -13,6 +13,22 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const isConfigured = databaseService.isConfigured();
 
+  const SQL_SNIPPET = `CREATE TABLE transactions (
+  id TEXT PRIMARY KEY,
+  type TEXT NOT NULL,
+  date TEXT NOT NULL,
+  item TEXT NOT NULL,
+  person TEXT NOT NULL,
+  remarks TEXT,
+  photo TEXT,
+  timestamp BIGINT NOT NULL
+);
+
+ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Read" ON transactions FOR SELECT USING (true);
+CREATE POLICY "Public Insert" ON transactions FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public Delete" ON transactions FOR DELETE USING (true);`;
+
   useEffect(() => {
     if (isConfigured) {
       const loadData = async () => {
@@ -30,44 +46,38 @@ const App: React.FC = () => {
   if (!isConfigured) {
     return (
       <Layout>
-        <div className="max-w-2xl mx-auto space-y-6 animate-fade-in py-10">
-          <div className="bg-[#3d3b3c] rounded-3xl border-2 border-dashed border-[#f5ff00]/30 p-8 md:p-12 text-center">
-            <div className="inline-flex p-5 bg-[#f5ff00]/10 rounded-full mb-6">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#f5ff00]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <h2 className="text-3xl font-black text-white uppercase mb-4 tracking-tight">Cloud-Setup fehlt</h2>
-            <p className="text-gray-400 mb-8">Damit deine Daten sicher in der Cloud gespeichert werden können, fehlen noch die Umgebungsvariablen in <strong>Vercel</strong>:</p>
+        <div className="max-w-3xl mx-auto space-y-8 animate-fade-in py-10">
+          <div className="bg-[#3d3b3c] rounded-3xl border-2 border-[#f5ff00]/20 p-8 md:p-12">
+            <h2 className="text-3xl font-black text-[#f5ff00] uppercase mb-6 tracking-tight text-center">Cloud-Datenbank Setup</h2>
             
-            <div className="text-left space-y-4 mb-10">
-              <div className="flex items-start space-x-4">
-                <div className="bg-[#f5ff00] text-[#333132] font-bold rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-1">1</div>
-                <p className="text-sm text-gray-300">Füge <code className="text-[#f5ff00]">SUPABASE_URL</code> hinzu.</p>
+            <div className="space-y-6">
+              <div className="bg-black/20 p-6 rounded-2xl border border-white/5">
+                <h3 className="text-white font-bold mb-3 flex items-center">
+                  <span className="bg-[#f5ff00] text-black w-6 h-6 rounded-full flex items-center justify-center text-xs mr-3">1</span>
+                  Tabelle in Supabase erstellen
+                </h3>
+                <p className="text-sm text-gray-400 mb-4">Öffne den <strong>SQL Editor</strong> in deinem Supabase-Projekt und führe diesen Code aus:</p>
+                <div className="relative group">
+                  <pre className="bg-[#2b292a] p-4 rounded-xl text-[10px] text-[#f5ff00] font-mono overflow-x-auto border border-[#f5ff00]/10">
+                    {SQL_SNIPPET}
+                  </pre>
+                </div>
               </div>
-              <div className="flex items-start space-x-4">
-                <div className="bg-[#f5ff00] text-[#333132] font-bold rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-1">2</div>
-                <p className="text-sm text-gray-300">Füge <code className="text-[#f5ff00]">SUPABASE_ANON_KEY</code> hinzu.</p>
+
+              <div className="bg-black/20 p-6 rounded-2xl border border-white/5">
+                <h3 className="text-white font-bold mb-3 flex items-center">
+                  <span className="bg-[#f5ff00] text-black w-6 h-6 rounded-full flex items-center justify-center text-xs mr-3">2</span>
+                  Vercel Variablen setzen
+                </h3>
+                <p className="text-sm text-gray-400">
+                  Stelle sicher, dass <code className="text-[#f5ff00]">SUPABASE_URL</code> und <code className="text-[#f5ff00]">SUPABASE_ANON_KEY</code> in den Vercel Environment Variables korrekt hinterlegt sind.
+                </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <a 
-                href="https://supabase.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="px-6 py-3 bg-white/5 text-white border border-white/10 font-bold rounded-xl hover:bg-white/10 transition-all"
-              >
-                Supabase öffnen
-              </a>
-              <a 
-                href="https://vercel.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="px-6 py-3 bg-[#f5ff00] text-[#333132] font-bold rounded-xl hover:scale-105 transition-all shadow-[0_0_30px_rgba(245,255,0,0.2)]"
-              >
-                Vercel Dashboard
-              </a>
+            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+              <a href="https://supabase.com" target="_blank" className="px-8 py-4 bg-[#f5ff00] text-black font-black rounded-2xl hover:scale-105 transition-transform text-center uppercase tracking-wider text-sm">Supabase Dashboard</a>
+              <button onClick={() => window.location.reload()} className="px-8 py-4 bg-white/5 text-white font-bold rounded-2xl border border-white/10 hover:bg-white/10 transition-all">Verbindung testen</button>
             </div>
           </div>
         </div>
@@ -76,31 +86,23 @@ const App: React.FC = () => {
   }
 
   const addTransaction = async (t: Transaction) => {
-    // Optimistisches Update: Erst in der UI anzeigen für sofortiges Feedback
     setTransactions(prev => [t, ...prev]);
     
-    try {
-      const success = await databaseService.saveTransaction(t);
-      if (!success) {
-        // Nur wenn es wirklich fehlgeschlagen ist, Rollback
-        console.warn("Speichern wurde vom Service als fehlgeschlagen markiert.");
-        alert("Fehler beim Cloud-Sync. Bitte prüfe die Internetverbindung. Der Eintrag wurde lokal zurückgesetzt.");
-        setTransactions(prev => prev.filter(item => item.id !== t.id));
-      }
-    } catch (e) {
-      console.error("Unerwarteter Fehler im addTransaction-Ablauf:", e);
+    const result = await databaseService.saveTransaction(t);
+    if (!result.success) {
+      alert(`⚠️ Cloud-Fehler:\n${result.error}\n\nDer Eintrag wird lokal entfernt. Prüfe bitte, ob die Tabelle 'transactions' korrekt angelegt wurde.`);
       setTransactions(prev => prev.filter(item => item.id !== t.id));
     }
   };
 
   const deleteTransaction = async (id: string) => {
     if (window.confirm("Möchtest du diesen Eintrag wirklich löschen?")) {
-      const originalTransactions = [...transactions];
+      const original = [...transactions];
       setTransactions(prev => prev.filter(t => t.id !== id));
       const success = await databaseService.deleteTransaction(id);
       if (!success) {
-        alert("Löschen fehlgeschlagen. Bitte erneut versuchen.");
-        setTransactions(originalTransactions);
+        alert("Löschen in der Cloud fehlgeschlagen.");
+        setTransactions(original);
       }
     }
   };
@@ -111,8 +113,6 @@ const App: React.FC = () => {
     sorted.forEach(t => { statusMap.set(t.item, t); });
     return Array.from(statusMap.values()).filter(t => t.type === TransactionType.LOAN);
   };
-
-  const outstandingItems = getOutstandingItems();
 
   return (
     <Layout>
@@ -132,19 +132,15 @@ const App: React.FC = () => {
           </header>
           
           <Stats transactions={transactions} />
-          <OutstandingItems items={outstandingItems} />
+          <OutstandingItems items={getOutstandingItems()} />
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <section className="lg:col-span-1">
             <LoanForm onAddTransaction={addTransaction} />
           </section>
-
           <section className="lg:col-span-2">
-            <HistoryTable 
-              transactions={transactions} 
-              onDelete={deleteTransaction} 
-            />
+            <HistoryTable transactions={transactions} onDelete={deleteTransaction} />
           </section>
         </div>
       </div>
