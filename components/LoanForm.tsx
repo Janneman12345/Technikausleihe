@@ -68,7 +68,6 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
       remarks,
       photo,
       timestamp: Date.now(),
-      // Übernahme der KI-Tipps in die Transaktion
       category: insight?.category,
       safetyNote: insight?.safetyNote,
       quickGuide: insight?.quickGuide,
@@ -122,10 +121,12 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
           <label className="block text-sm font-medium text-gray-300 mb-1">Gegenstand</label>
           <input type="text" required placeholder="Was wird bewegt?" value={item} onChange={(e) => setItem(e.target.value)} onBlur={handleItemBlur} className="w-full rounded-lg bg-[#3d3b3c] border-[#f5ff00]/30 text-white placeholder-gray-500 shadow-sm border px-3 py-2 outline-none" />
           {insight && (
-            <div className="mt-2 p-3 bg-[#f5ff00]/10 rounded-lg border border-[#f5ff00]/30 flex items-start space-x-3 animate-fade-in">
-              <div className="text-xs text-[#f5ff00] leading-relaxed">
-                <p className="font-bold mb-0.5 uppercase tracking-wider">✨ {insight.category}</p>
-                <p>{insight.quickGuide}</p>
+            <div className="mt-2 p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/30 flex items-start space-x-3 animate-fade-in">
+              <div className="text-xs text-emerald-400 leading-relaxed">
+                <p className="font-bold mb-0.5 uppercase tracking-wider flex items-center">
+                  <span className="mr-1.5 text-base">✨</span> {insight.category}
+                </p>
+                <p className="italic">"{insight.quickGuide}"</p>
               </div>
             </div>
           )}
