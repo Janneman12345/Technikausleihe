@@ -59,13 +59,8 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ transactions, onDelete }) =
                         {t.type}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white flex items-center space-x-2">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                       <span>{t.item}</span>
-                      {t.category && (
-                        <span className="text-[9px] bg-white/5 px-1 rounded text-gray-500 font-bold uppercase tracking-tighter">
-                          {t.category}
-                        </span>
-                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-xs">
                       <button 
@@ -76,24 +71,12 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ transactions, onDelete }) =
                       </button>
                     </td>
                   </tr>
-                  {/* Erweiterte Ansicht für KI-Details und Bemerkungen */}
                   {expandedId === t.id && (
                     <tr className="bg-[#2b292a] animate-fade-in">
                       <td colSpan={5} className="px-6 py-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Bemerkungen</p>
-                            <p className="text-sm text-gray-300 italic">{t.remarks || 'Keine Bemerkungen hinterlegt.'}</p>
-                          </div>
-                          {(t.safetyNote || t.quickGuide) && (
-                            <div className="space-y-2 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
-                              <p className="text-[10px] text-emerald-500/50 font-bold uppercase tracking-widest flex items-center">
-                                <span className="mr-1">✨</span> KI-Einsichten (Gespeichert)
-                              </p>
-                              {t.safetyNote && <p className="text-xs text-emerald-400/80 leading-relaxed"><span className="font-bold">⚠️</span> {t.safetyNote}</p>}
-                              {t.quickGuide && <p className="text-xs text-gray-400 leading-relaxed italic">"{t.quickGuide}"</p>}
-                            </div>
-                          )}
+                        <div className="space-y-2">
+                          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Bemerkungen</p>
+                          <p className="text-sm text-gray-300 italic">{t.remarks || 'Keine Bemerkungen hinterlegt.'}</p>
                         </div>
                       </td>
                     </tr>

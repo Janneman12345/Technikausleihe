@@ -1,7 +1,6 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { TransactionType, Transaction, SmartTip } from '../types';
-import { getSmartInsight } from '../services/geminiService';
+import React, { useState, useRef } from 'react';
+import { TransactionType, Transaction } from '../types';
 
 interface LoanFormProps {
   onAddTransaction: (transaction: Transaction) => void;
@@ -20,36 +19,9 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
   const [photo, setPhoto] = useState<string | undefined>(undefined);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoadingInsight, setIsLoadingInsight] = useState(false);
-  const [insight, setInsight] = useState<SmartTip | null>(null);
   
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
-
-  // KI-Abfrage mit Debounce (1 Sekunde warten nach letztem Tastendruck)
-  useEffect(() => {
-    const trimmedItem = item.trim();
-    if (trimmedItem.length < 3) {
-      setInsight(null);
-      setIsLoadingInsight(false);
-      return;
-    }
-
-    setIsLoadingInsight(true);
-
-    const timeoutId = setTimeout(async () => {
-      try {
-        const result = await getSmartInsight(trimmedItem);
-        setInsight(result);
-      } catch (err) {
-        console.error("KI-Insight Fehler:", err);
-      } finally {
-        setIsLoadingInsight(false);
-      }
-    }, 1000); 
-
-    return () => clearTimeout(timeoutId);
-  }, [item]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -80,10 +52,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
       person,
       remarks,
       photo,
-      timestamp: Date.now(),
-      category: insight?.category,
-      safetyNote: insight?.safetyNote,
-      quickGuide: insight?.quickGuide
+      timestamp: Date.now()
     };
 
     setTimeout(() => {
@@ -91,7 +60,6 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
       setItem('');
       setRemarks('');
       setPhoto(undefined);
-      setInsight(null);
       setIsSubmitting(false);
     }, 400);
   };
@@ -140,52 +108,6 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
             onChange={(e) => setItem(e.target.value)} 
             className="w-full rounded-xl bg-[#3d3b3c] border-[#f5ff00]/30 text-white placeholder-gray-600 shadow-sm border px-4 py-3 outline-none focus:border-[#f5ff00]/60 transition-colors" 
           />
-          
-          {/* DEDIZIERTE SMART-INFO-AREA (Dauerhaft sichtbar, wechselnder Inhalt) */}
-          <div className="mt-4 rounded-xl border border-white/5 bg-black/40 p-4 transition-all min-h-[100px] flex flex-col justify-center relative overflow-hidden group">
-            {/* Dekoratives Element */}
-            <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#f5ff00]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-
-            {isLoadingInsight ? (
-              <div className="flex flex-col items-center space-y-3 py-2 animate-pulse">
-                <div className="flex space-x-2">
-                  <div className="w-2 h-2 bg-[#f5ff00] rounded-full"></div>
-                  <div className="w-2 h-2 bg-[#f5ff00] rounded-full opacity-60"></div>
-                  <div className="w-2 h-2 bg-[#f5ff00] rounded-full opacity-30"></div>
-                </div>
-                <span className="text-[10px] text-[#f5ff00] font-black uppercase tracking-[0.3em]">System Analyse läuft...</span>
-              </div>
-            ) : insight ? (
-              <div className="animate-fade-in space-y-3">
-                <div className="flex justify-between items-start">
-                  <span className="text-[10px] font-black text-[#f5ff00] uppercase tracking-widest bg-[#f5ff00]/10 px-2 py-1 rounded border border-[#f5ff00]/20">
-                    {insight.category}
-                  </span>
-                  <span className="text-[9px] text-gray-600 font-bold uppercase tracking-widest">KI Empfehlung</span>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs text-white leading-relaxed font-medium italic border-l-2 border-[#f5ff00]/30 pl-3">
-                    "{insight.quickGuide}"
-                  </p>
-                  <div className="flex items-start space-x-2 text-rose-400 bg-rose-400/5 px-3 py-2 rounded-lg border border-rose-400/20">
-                    <span className="text-xs mt-0.5">⚠️</span>
-                    <p className="text-[10px] font-bold leading-snug">{insight.safetyNote}</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-2">
-                <p className="text-[10px] text-gray-700 font-black uppercase tracking-[0.2em] mb-1">
-                  {item.length < 3 ? "Warte auf Gerätenamen" : "Keine Smart-Infos verfügbar"}
-                </p>
-                <div className="h-0.5 w-12 bg-gray-800 mx-auto rounded-full"></div>
-              </div>
-            )}
-          </div>
         </div>
 
         <div>
