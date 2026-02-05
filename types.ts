@@ -13,6 +13,10 @@ export interface Transaction {
   remarks: string;
   photo?: string;
   timestamp: number;
+  // KI-Metadaten (optional, da sie nur bei Ausleihen generiert werden)
+  category?: string;
+  safetyNote?: string;
+  quickGuide?: string;
 }
 
 export interface SmartTip {

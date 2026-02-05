@@ -13,11 +13,11 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const isConfigured = databaseService.isConfigured();
 
-  // Aktualisierter SQL Befehl mit den neuen Spalten für KI-Tipps
+  // Aktualisiertes SQL-Snippet inklusive KI-Feldern
   const SQL_SNIPPET = `-- 1. ALTE TABELLE LÖSCHEN
 DROP TABLE IF EXISTS transactions;
 
--- 2. TABELLE NEU ANLEGEN (Inklusive Insight-Spalten)
+-- 2. TABELLE NEU ANLEGEN (inkl. KI-Spalten)
 CREATE TABLE transactions (
   id TEXT PRIMARY KEY,
   type TEXT NOT NULL,
@@ -26,10 +26,10 @@ CREATE TABLE transactions (
   person TEXT NOT NULL,
   remarks TEXT,
   photo TEXT,
-  timestamp BIGINT NOT NULL,
   category TEXT,
-  "safetyNote" TEXT,
-  "quickGuide" TEXT
+  safetyNote TEXT,
+  quickGuide TEXT,
+  timestamp BIGINT NOT NULL
 );
 
 -- 3. ZUGRIFFSRECHTE
@@ -61,7 +61,7 @@ CREATE POLICY "Public Delete" ON transactions FOR DELETE USING (true);`;
             <div className="space-y-6 text-center">
               <p className="text-gray-400">Bitte richte zuerst deine Umgebungsvariablen in Vercel ein.</p>
               <div className="bg-black/20 p-6 rounded-2xl border border-white/5 text-left">
-                <h3 className="text-white font-bold mb-3">Tabelle anlegen:</h3>
+                <h3 className="text-white font-bold mb-3">Tabelle anlegen (Update für KI-Speicherung):</h3>
                 <pre className="bg-[#2b292a] p-4 rounded-xl text-[10px] text-[#f5ff00] font-mono overflow-x-auto border border-[#f5ff00]/30 shadow-inner">
                   {SQL_SNIPPET}
                 </pre>

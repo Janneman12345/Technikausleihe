@@ -7,7 +7,7 @@ interface OutstandingItemsProps { items: Transaction[]; }
 const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  // ESC-Taste zum Schließen
+  // ESC-Taste zum Schließen für Desktop-Nutzer
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setSelectedImage(null);
@@ -66,36 +66,35 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
       {selectedImage && (
         <div 
           className="fixed inset-0 flex items-center justify-center bg-black/98 backdrop-blur-2xl transition-all"
-          style={{ zIndex: 99999 }} // Sicherstellen, dass es über dem Header (z-50) liegt
+          style={{ zIndex: 99999 }} // Sicher über dem Header
           onClick={() => setSelectedImage(null)}
         >
-          {/* Zentrierter Container für das Bild */}
-          <div className="relative w-full h-full flex items-center justify-center p-4 sm:p-10 pointer-events-none">
+          {/* Zentrierter Bild-Container */}
+          <div className="relative flex items-center justify-center w-full h-full p-4 pointer-events-none">
             <img 
               src={selectedImage} 
               alt="Großansicht" 
-              className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-[0_0_80px_rgba(0,0,0,0.9)] animate-zoom-in ring-1 ring-white/10 pointer-events-auto"
+              className="max-w-[95vw] max-h-[85vh] object-contain rounded-xl shadow-[0_0_100px_rgba(0,0,0,0.9)] animate-zoom-in ring-1 ring-white/10 pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             />
           </div>
 
-          {/* Schließen Button - Fest positioniert unten rechts */}
+          {/* Schließen Button - Unten Rechts, abgerundet */}
           <button 
-            className="fixed bottom-10 right-10 flex items-center space-x-3 bg-[#f5ff00] text-[#333132] px-8 py-4 rounded-full font-bold shadow-[0_10px_40px_rgba(245,255,0,0.2)] hover:scale-105 active:scale-95 transition-all z-[100000] cursor-pointer group"
+            className="fixed bottom-10 right-10 flex items-center space-x-3 bg-[#f5ff00] text-[#333132] px-10 py-5 rounded-full font-black shadow-[0_20px_50px_rgba(245,255,0,0.3)] hover:scale-105 active:scale-95 transition-all z-[100000] cursor-pointer group uppercase tracking-widest text-sm"
             onClick={(e) => {
               e.stopPropagation();
               setSelectedImage(null);
             }}
           >
-            <span className="text-sm uppercase tracking-widest">Schließen</span>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+            <span>Schließen</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
           
-          {/* Hintergrund-Hinweis */}
-          <div className="absolute top-10 text-white/20 text-[10px] uppercase font-bold tracking-[0.4em] pointer-events-none">
-            Klicken zum Schließen
+          <div className="absolute top-10 text-white/20 text-[10px] uppercase font-bold tracking-[0.4em] pointer-events-none hidden sm:block">
+            Klicken oder ESC zum Schließen
           </div>
         </div>
       )}

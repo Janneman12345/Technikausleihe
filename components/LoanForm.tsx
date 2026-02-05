@@ -71,6 +71,8 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
     if (!item || !person) return;
 
     setIsSubmitting(true);
+    
+    // Transaktion mit KI-Daten anreichern, falls vorhanden
     const newTransaction: Transaction = {
       id: Math.random().toString(36).substr(2, 9),
       type,
@@ -80,6 +82,10 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
       remarks,
       photo,
       timestamp: Date.now(),
+      // Diese Felder werden jetzt mit in die DB gespeichert
+      category: insight?.category,
+      safetyNote: insight?.safetyNote,
+      quickGuide: insight?.quickGuide
     };
 
     setTimeout(() => {
@@ -144,7 +150,6 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
             )}
           </div>
           
-          {/* KI-Antwort direkt unter dem Eingabefeld */}
           {insight && (
             <div className="mt-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 animate-fade-in shadow-[0_4px_20px_rgba(16,185,129,0.05)]">
               <div className="flex items-start space-x-2">

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Transaction, TransactionType } from '../types';
 
 interface HistoryTableProps {
@@ -8,6 +8,8 @@ interface HistoryTableProps {
 }
 
 const HistoryTable: React.FC<HistoryTableProps> = ({ transactions, onDelete }) => {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
   return (
     <div className="bg-[#333132] rounded-2xl shadow-2xl border border-[#f5ff00]/20 overflow-hidden">
       <div className="bg-[#3d3b3c] border-b border-[#f5ff00]/20 px-6 py-4 flex justify-between items-center">
@@ -37,34 +39,66 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ transactions, onDelete }) =
               </tr>
             ) : (
               transactions.map((t) => (
-                <tr key={t.id} className="hover:bg-[#3d3b3c] transition-colors group">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                    {new Date(t.date).toLocaleDateString('de-DE')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#f5ff00]">
-                    {t.person || 'Unbekannt'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
-                      t.type === TransactionType.LOAN 
-                        ? 'bg-[#f5ff00]/10 text-[#f5ff00]' 
-                        : 'bg-emerald-500/10 text-emerald-400'
-                    }`}>
-                      {t.type}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                    {t.item}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-xs">
-                    <button 
-                      onClick={() => onDelete(t.id)}
-                      className="text-rose-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      Löschen
-                    </button>
-                  </td>
-                </tr>
+                <React.Fragment key={t.id}>
+                  <tr 
+                    onClick={() => setExpandedId(expandedId === t.id ? null : t.id)}
+                    className="hover:bg-[#3d3b3c] transition-colors group cursor-pointer"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">
+                      {new Date(t.date).toLocaleDateString('de-DE')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#f5ff00]">
+                      {t.person || 'Unbekannt'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
+                        t.type === TransactionType.LOAN 
+                          ? 'bg-[#f5ff00]/10 text-[#f5ff00]' 
+                          : 'bg-emerald-500/10 text-emerald-400'
+                      }`}>
+                        {t.type}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white flex items-center space-x-2">
+                      <span>{t.item}</span>
+                      {t.category && (
+                        <span className="text-[9px] bg-white/5 px-1 rounded text-gray-500 font-bold uppercase tracking-tighter">
+                          {t.category}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-xs">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); onDelete(t.id); }}
+                        className="text-rose-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        Löschen
+                      </button>
+                    </td>
+                  </tr>
+                  {/* Erweiterte Ansicht für KI-Details und Bemerkungen */}
+                  {expandedId === t.id && (
+                    <tr className="bg-[#2b292a] animate-fade-in">
+                      <td colSpan={5} className="px-6 py-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Bemerkungen</p>
+                            <p className="text-sm text-gray-300 italic">{t.remarks || 'Keine Bemerkungen hinterlegt.'}</p>
+                          </div>
+                          {(t.safetyNote || t.quickGuide) && (
+                            <div className="space-y-2 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
+                              <p className="text-[10px] text-emerald-500/50 font-bold uppercase tracking-widest flex items-center">
+                                <span className="mr-1">✨</span> KI-Einsichten (Gespeichert)
+                              </p>
+                              {t.safetyNote && <p className="text-xs text-emerald-400/80 leading-relaxed"><span className="font-bold">⚠️</span> {t.safetyNote}</p>}
+                              {t.quickGuide && <p className="text-xs text-gray-400 leading-relaxed italic">"{t.quickGuide}"</p>}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               ))
             )}
           </tbody>
