@@ -1,0 +1,7 @@
+{
+  "name": "Technikausleihe",
+  "description": "Ein professionelles System zur Verwaltung von Geräteausleihen mit intelligenter Unterstützung.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

@@ -1,0 +1,20 @@
+export enum TransactionType {
+  LOAN = 'Ausleihe',
+  RETURN = 'Rückgabe'
+}
+
+export interface Transaction {
+  id: string;
+  type: TransactionType;
+  date: string;
+  item: string;
+  remarks: string;
+  photo?: string;
+  timestamp: number;
+}
+
+export interface SmartTip {
+  category: string;
+  safetyNote: string;
+  quickGuide: string;
+}
