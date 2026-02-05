@@ -30,25 +30,50 @@ const App: React.FC = () => {
   if (!isConfigured) {
     return (
       <Layout>
-        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-8 bg-[#3d3b3c] rounded-3xl border-2 border-dashed border-[#f5ff00]/30 animate-fade-in">
-          <div className="p-6 bg-[#f5ff00]/10 rounded-full mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-[#f5ff00]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
+        <div className="max-w-2xl mx-auto space-y-6 animate-fade-in py-10">
+          <div className="bg-[#3d3b3c] rounded-3xl border-2 border-dashed border-[#f5ff00]/30 p-8 md:p-12 text-center">
+            <div className="inline-flex p-5 bg-[#f5ff00]/10 rounded-full mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#f5ff00]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <h2 className="text-3xl font-black text-white uppercase mb-4 tracking-tight">Fast fertig!</h2>
+            <p className="text-gray-400 mb-8">Damit deine Daten sicher in der Cloud gespeichert werden können, fehlen noch zwei kleine Einstellungen in <strong>Vercel</strong>:</p>
+            
+            <div className="text-left space-y-4 mb-10">
+              <div className="flex items-start space-x-4">
+                <div className="bg-[#f5ff00] text-[#333132] font-bold rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-1">1</div>
+                <p className="text-sm text-gray-300">Gehe zu <strong>supabase.com</strong>, erstelle ein Projekt und kopiere unter Settings > API die <strong>URL</strong> und den <strong>anon key</strong>.</p>
+              </div>
+              <div className="flex items-start space-x-4">
+                <div className="bg-[#f5ff00] text-[#333132] font-bold rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-1">2</div>
+                <p className="text-sm text-gray-300">Öffne dein Projekt in <strong>Vercel</strong> > Settings > Environment Variables.</p>
+              </div>
+              <div className="flex items-start space-x-4">
+                <div className="bg-[#f5ff00] text-[#333132] font-bold rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-1">3</div>
+                <p className="text-sm text-gray-300">Füge <code className="text-[#f5ff00]">SUPABASE_URL</code> und <code className="text-[#f5ff00]">SUPABASE_ANON_KEY</code> hinzu und klicke auf <strong>Redeploy</strong> unter dem Tab Deployments.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <a 
+                href="https://supabase.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-white/5 text-white border border-white/10 font-bold rounded-xl hover:bg-white/10 transition-all"
+              >
+                Supabase öffnen
+              </a>
+              <a 
+                href="https://vercel.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-[#f5ff00] text-[#333132] font-bold rounded-xl hover:scale-105 transition-all shadow-[0_0_30px_rgba(245,255,0,0.2)]"
+              >
+                Vercel Dashboard
+              </a>
+            </div>
           </div>
-          <h2 className="text-2xl font-black text-[#f5ff00] uppercase mb-4">Konfiguration fehlt</h2>
-          <p className="text-gray-300 max-w-md mb-8 leading-relaxed">
-            Die App ist bereit, aber die Verbindung zur Cloud-Datenbank (Supabase) wurde noch nicht eingerichtet. 
-            Bitte hinterlege <code className="bg-black/40 px-2 py-1 rounded text-[#f5ff00]">SUPABASE_URL</code> und <code className="bg-black/40 px-2 py-1 rounded text-[#f5ff00]">SUPABASE_ANON_KEY</code> in deinen Umgebungsvariablen.
-          </p>
-          <a 
-            href="https://supabase.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="px-8 py-3 bg-[#f5ff00] text-[#333132] font-bold rounded-xl hover:scale-105 transition-transform"
-          >
-            Supabase Setup Anleitung
-          </a>
         </div>
       </Layout>
     );
