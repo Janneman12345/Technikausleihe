@@ -39,20 +39,22 @@ export const databaseService = {
     if (!supabase) return false;
 
     try {
-      // Wir senden den Insert-Befehl.
-      // Falls RLS 'Insert' erlaubt aber 'Select' verbietet, gibt Supabase einen Fehler zurück,
-      // obwohl die Daten gespeichert wurden. Wir prüfen daher primär den Status-Code.
-      const response = await supabase
+      // FIX: 'minimal' ist kein gültiger Wert für 'count'. In Supabase v2 ist das Standardverhalten 
+      // bereits minimal (kein automatisches SELECT nach dem Einfügen), was RLS-Probleme vermeidet.
+      const { status, error } = await supabase
         .from('transactions')
-        .insert([transaction]);
+        .insert(transaction);
 
-      // Status 201 bedeutet 'Created'. In diesem Fall ignorieren wir mögliche Fehler-Objekte,
-      // die oft nur besagen, dass der Datensatz nicht zurückgelesen werden konnte.
-      if (response.status === 201 || response.status === 200 || !response.error) {
+      // Ein Status-Code im 200er Bereich (200, 201, 204) bedeutet Erfolg.
+      if (status >= 200 && status < 300) {
         return true;
       }
 
-      console.error('Supabase Save Fehler Details:', response.error, 'Status:', response.status);
+      // Falls ein Fehler auftritt, loggen wir ihn für die Entwicklerkonsole.
+      if (error) {
+        console.error('Supabase Save Fehler:', error.message, 'Status:', status);
+      }
+      
       return false;
     } catch (e) {
       console.error('Kritischer Netzwerkfehler beim Speichern:', e);

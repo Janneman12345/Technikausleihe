@@ -3,13 +3,8 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { SmartTip } from "../types";
 
 export const getSmartInsight = async (itemName: string): Promise<SmartTip | null> => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    console.warn("API Key nicht konfiguriert.");
-    return null;
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
+  // Always use the required initialization format for GoogleGenAI
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   try {
     const response = await ai.models.generateContent({
@@ -30,7 +25,7 @@ export const getSmartInsight = async (itemName: string): Promise<SmartTip | null
       }
     });
 
-    // Behebung von error TS18048: 'response.text' is possibly 'undefined'.
+    // Accessing response.text directly as a property as per latest SDK guidelines
     const generatedText = response.text;
     if (generatedText) {
       return JSON.parse(generatedText.trim()) as SmartTip;
