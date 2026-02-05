@@ -28,7 +28,10 @@ export const getSmartInsight = async (itemName: string): Promise<string | null> 
       }
     });
 
-    const result = JSON.parse(response.text);
+    const text = response.text;
+    if (!text) return null;
+
+    const result = JSON.parse(text);
     return result.handlingTip || null;
   } catch (error) {
     console.error("Gemini Error:", error);
