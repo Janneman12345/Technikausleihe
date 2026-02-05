@@ -26,7 +26,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  // KI-Hilfe: Nur als temporäre Anzeige beim Ausfüllen
+  // KI-Unterstützung während der Eingabe
   useEffect(() => {
     const trimmedItem = item.trim();
     if (trimmedItem.length < 3) {
@@ -42,7 +42,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
         const result = await getSmartInsight(trimmedItem);
         setInsight(result);
       } catch (err) {
-        console.error("KI-Fehler:", err);
+        console.error("KI-Insight Fehler:", err);
       } finally {
         setIsTyping(false);
       }
@@ -144,17 +144,17 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
             )}
           </div>
           
-          {/* KI-Antwort direkt unter dem Feld Geräte/Gegenstand */}
+          {/* KI-Antwort direkt unter dem Eingabefeld */}
           {insight && (
-            <div className="mt-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 animate-fade-in">
+            <div className="mt-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 animate-fade-in shadow-[0_4px_20px_rgba(16,185,129,0.05)]">
               <div className="flex items-start space-x-2">
                 <span className="text-emerald-400 text-sm mt-0.5">✨</span>
                 <div className="text-[11px] text-emerald-50/90 leading-tight italic">
                   <span className="font-bold text-emerald-400 not-italic uppercase tracking-tighter mr-2">[{insight.category}]</span>
                   "{insight.quickGuide}"
                   {insight.safetyNote && (
-                    <div className="mt-1 text-emerald-400 font-bold not-italic">
-                      ⚠️ {insight.safetyNote}
+                    <div className="mt-1 text-emerald-400 font-bold not-italic flex items-center">
+                      <span className="mr-1">⚠️</span> {insight.safetyNote}
                     </div>
                   )}
                 </div>
