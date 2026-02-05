@@ -1,48 +1,77 @@
 
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Transaction } from '../types';
 
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Wir initialisieren den Client nur, wenn die URL vorhanden ist.
+// Das verhindert den Absturz ("supabaseUrl is required").
+export const supabase: SupabaseClient | null = supabaseUrl 
+  ? createClient(supabaseUrl, supabaseAnonKey) 
+  : null;
 
 export const databaseService = {
-  async fetchTransactions(): Promise<Transaction[]> {
-    const { data, error } = await supabase
-      .from('transactions')
-      .select('*')
-      .order('timestamp', { ascending: false });
+  isConfigured(): boolean {
+    return !!supabase;
+  },
 
-    if (error) {
-      console.error('Fehler beim Laden:', error);
+  async fetchTransactions(): Promise<Transaction[]> {
+    if (!supabase) return [];
+    
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .order('timestamp', { ascending: false });
+
+      if (error) {
+        console.error('Supabase Fetch Fehler:', error);
+        return [];
+      }
+      return data as Transaction[];
+    } catch (e) {
+      console.error('Netzwerkfehler beim Laden:', e);
       return [];
     }
-    return data as Transaction[];
   },
 
   async saveTransaction(transaction: Transaction): Promise<boolean> {
-    const { error } = await supabase
-      .from('transactions')
-      .insert([transaction]);
+    if (!supabase) return false;
 
-    if (error) {
-      console.error('Fehler beim Speichern:', error);
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .insert([transaction]);
+
+      if (error) {
+        console.error('Supabase Save Fehler:', error);
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.error('Netzwerkfehler beim Speichern:', e);
       return false;
     }
-    return true;
   },
 
   async deleteTransaction(id: string): Promise<boolean> {
-    const { error } = await supabase
-      .from('transactions')
-      .delete()
-      .eq('id', id);
+    if (!supabase) return false;
 
-    if (error) {
-      console.error('Fehler beim Löschen:', error);
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Supabase Delete Fehler:', error);
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.error('Netzwerkfehler beim Löschen:', e);
       return false;
     }
-    return true;
   }
 };

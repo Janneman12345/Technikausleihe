@@ -11,25 +11,54 @@ import { databaseService } from './services/databaseService';
 const App: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const isConfigured = databaseService.isConfigured();
 
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      const data = await databaseService.fetchTransactions();
-      setTransactions(data);
+    if (isConfigured) {
+      const loadData = async () => {
+        setIsLoading(true);
+        const data = await databaseService.fetchTransactions();
+        setTransactions(data);
+        setIsLoading(false);
+      };
+      loadData();
+    } else {
       setIsLoading(false);
-    };
-    loadData();
-  }, []);
+    }
+  }, [isConfigured]);
+
+  if (!isConfigured) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-8 bg-[#3d3b3c] rounded-3xl border-2 border-dashed border-[#f5ff00]/30 animate-fade-in">
+          <div className="p-6 bg-[#f5ff00]/10 rounded-full mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-[#f5ff00]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-black text-[#f5ff00] uppercase mb-4">Konfiguration fehlt</h2>
+          <p className="text-gray-300 max-w-md mb-8 leading-relaxed">
+            Die App ist bereit, aber die Verbindung zur Cloud-Datenbank (Supabase) wurde noch nicht eingerichtet. 
+            Bitte hinterlege <code className="bg-black/40 px-2 py-1 rounded text-[#f5ff00]">SUPABASE_URL</code> und <code className="bg-black/40 px-2 py-1 rounded text-[#f5ff00]">SUPABASE_ANON_KEY</code> in deinen Umgebungsvariablen.
+          </p>
+          <a 
+            href="https://supabase.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="px-8 py-3 bg-[#f5ff00] text-[#333132] font-bold rounded-xl hover:scale-105 transition-transform"
+          >
+            Supabase Setup Anleitung
+          </a>
+        </div>
+      </Layout>
+    );
+  }
 
   const addTransaction = async (t: Transaction) => {
-    // Optimistisches Update für UI-Responsivität
     setTransactions(prev => [t, ...prev]);
-    
     const success = await databaseService.saveTransaction(t);
     if (!success) {
       alert("Fehler beim Speichern in der Cloud. Bitte Internetverbindung prüfen.");
-      // Rollback bei Fehler
       setTransactions(prev => prev.filter(item => item.id !== t.id));
     }
   };
@@ -38,7 +67,6 @@ const App: React.FC = () => {
     if (window.confirm("Möchtest du diesen Eintrag wirklich löschen?")) {
       const originalTransactions = [...transactions];
       setTransactions(prev => prev.filter(t => t.id !== id));
-      
       const success = await databaseService.deleteTransaction(id);
       if (!success) {
         alert("Löschen fehlgeschlagen.");
@@ -49,11 +77,8 @@ const App: React.FC = () => {
 
   const getOutstandingItems = () => {
     const statusMap = new Map<string, Transaction>();
-    // Sortierung nach Zeitstempel sicherstellen
     const sorted = [...transactions].sort((a, b) => a.timestamp - b.timestamp);
-    sorted.forEach(t => {
-      statusMap.set(t.item, t);
-    });
+    sorted.forEach(t => { statusMap.set(t.item, t); });
     return Array.from(statusMap.values()).filter(t => t.type === TransactionType.LOAN);
   };
 
