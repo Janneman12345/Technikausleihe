@@ -26,30 +26,31 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  // AI-Logik mit verbessertem Feedback und Timeout-Schutz
+  // Verbesserte KI-Logik: Reagiert sofort und zeigt Ladezustand
   useEffect(() => {
-    if (item.trim().length < 3) {
+    const trimmedItem = item.trim();
+    if (trimmedItem.length < 3) {
       setInsight(null);
       setIsTyping(false);
       return;
     }
 
-    // Zeige sofort den Spinner an, wenn der Nutzer tippt
+    // Sofortiger Start des Ladestatus
     setIsTyping(true);
-    setInsight(null);
+    setInsight(null); // Alten Insight löschen während neu geladen wird
 
     const timeoutId = setTimeout(async () => {
       try {
-        const result = await getSmartInsight(item);
+        const result = await getSmartInsight(trimmedItem);
         if (result) {
           setInsight(result);
         }
       } catch (err) {
-        console.error("Fetch failed", err);
+        console.error("KI-Fehler beim Laden:", err);
       } finally {
         setIsTyping(false);
       }
-    }, 1000); // 1 Sekunde warten nach der letzten Eingabe
+    }, 1000); 
 
     return () => clearTimeout(timeoutId);
   }, [item]);
@@ -138,10 +139,10 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
             <input 
               type="text" 
               required 
-              placeholder="Was wird bewegt?" 
+              placeholder="Was leihst du aus?" 
               value={item} 
               onChange={(e) => setItem(e.target.value)} 
-              className="w-full rounded-lg bg-[#3d3b3c] border-[#f5ff00]/30 text-white placeholder-gray-500 shadow-sm border px-3 py-2 outline-none" 
+              className="w-full rounded-lg bg-[#3d3b3c] border-[#f5ff00]/30 text-white placeholder-gray-500 shadow-sm border px-3 py-2 outline-none focus:border-[#f5ff00]/60 transition-colors" 
             />
             {isTyping && (
               <div className="absolute right-3 top-2.5 flex items-center">
@@ -150,28 +151,37 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
             )}
           </div>
           
-          {/* KI-TIPPS BLOCK IN SMARAGD-GRÜN */}
-          {insight && (
-            <div className="mt-3 p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/40 space-y-2 animate-fade-in shadow-[0_0_20px_rgba(16,185,129,0.05)]">
-              <div className="flex items-center space-x-2 text-emerald-400">
-                <span className="text-base">✨</span>
-                <span className="text-[10px] font-black uppercase tracking-widest">{insight.category}</span>
-              </div>
-              <div className="text-xs text-emerald-50 leading-relaxed italic border-l-2 border-emerald-500/30 pl-3">
-                <p className="mb-1.5">"{insight.quickGuide}"</p>
-                {insight.safetyNote && (
-                  <p className="text-emerald-400 font-bold not-italic text-[10px] uppercase tracking-wide">
-                    ⚠️ {insight.safetyNote}
-                  </p>
-                )}
-              </div>
+          {/* Smaragd-Grüne KI-Box (Sichtbar beim Laden und bei Erfolg) */}
+          {(isTyping || insight) && (
+            <div className={`mt-3 p-4 rounded-xl border transition-all duration-300 ${isTyping ? 'bg-emerald-500/5 border-emerald-500/20 animate-pulse' : 'bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.1)]'}`}>
+              {isTyping ? (
+                <div className="flex items-center space-x-3 text-emerald-400/60">
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-[10px] font-black uppercase tracking-widest">KI analysiert Gerät...</span>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2 text-emerald-400">
+                    <span className="text-base">✨</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">{insight?.category || 'Technik'}</span>
+                  </div>
+                  <div className="text-xs text-emerald-50/90 leading-relaxed italic border-l-2 border-emerald-500/20 pl-3">
+                    <p className="mb-1.5 font-medium">"{insight?.quickGuide}"</p>
+                    {insight?.safetyNote && (
+                      <p className="text-emerald-400 font-bold not-italic text-[10px] uppercase tracking-wide flex items-center">
+                        <span className="mr-1">⚠️</span> {insight.safetyNote}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">Bemerkungen</label>
-          <textarea rows={2} placeholder="Zubehör? Zustand?" value={remarks} onChange={(e) => setRemarks(e.target.value)} className="w-full rounded-lg bg-[#3d3b3c] border-[#f5ff00]/30 text-white placeholder-gray-500 border px-3 py-2 outline-none resize-none" />
+          <textarea rows={2} placeholder="Zubehör? Besonderheiten?" value={remarks} onChange={(e) => setRemarks(e.target.value)} className="w-full rounded-lg bg-[#3d3b3c] border-[#f5ff00]/30 text-white placeholder-gray-500 border px-3 py-2 outline-none resize-none" />
         </div>
 
         <div className="space-y-3">
@@ -201,7 +211,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
         </div>
 
         <button type="submit" disabled={isSubmitting} className={`w-full flex justify-center py-3.5 px-4 rounded-xl shadow-lg text-sm font-bold transition-all transform active:scale-[0.98] ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'bg-[#f5ff00] text-[#333132] hover:opacity-90'}`}>
-          {isSubmitting ? "Wird gespeichert..." : `${type} bestätigen`}
+          {isSubmitting ? "Speichern..." : `${type} bestätigen`}
         </button>
       </form>
     </div>

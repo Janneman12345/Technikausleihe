@@ -1,11 +1,20 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Transaction } from '../types';
 
 interface OutstandingItemsProps { items: Transaction[]; }
 
 const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  // Tastatur-Support für ESC zum Schließen
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedImage(null);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
 
   if (items.length === 0) return null;
 
@@ -26,7 +35,7 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
                     e.stopPropagation();
                     setSelectedImage(item.photo || null);
                   }}
-                  className="h-16 w-16 rounded-lg overflow-hidden flex-shrink-0 border border-[#f5ff00]/20 bg-black cursor-zoom-in hover:ring-2 ring-emerald-500/50 transition-all shadow-xl"
+                  className="h-16 w-16 rounded-lg overflow-hidden flex-shrink-0 border border-[#f5ff00]/20 bg-black cursor-zoom-in hover:ring-2 ring-emerald-500 transition-all shadow-xl"
                 >
                   <img src={item.photo} alt={item.item} className="h-full w-full object-cover pointer-events-none" />
                 </div>
@@ -54,7 +63,7 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
             {(item.quickGuide || item.safetyNote) && (
               <div className="bg-emerald-500/5 rounded-lg p-2.5 text-[10px] border border-emerald-500/20">
                 <div className="flex items-center text-emerald-400 font-bold uppercase tracking-wider mb-1">
-                  <span className="mr-1">✨</span> Tipp
+                  <span className="mr-1">✨</span> KI-Tipp
                 </div>
                 <p className="text-gray-400 leading-snug line-clamp-2 italic">
                   "{item.quickGuide || item.safetyNote}"
@@ -65,42 +74,51 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
         ))}
       </div>
 
-      {/* REINE BILD-LIGHTBOX */}
+      {/* FULLSCREEN BILD-ZOOM MODAL - MAXIMALER Z-INDEX (99999) */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 flex items-center justify-center p-4 bg-black/98 backdrop-blur-2xl animate-fade-in transition-all"
+          style={{ zIndex: 99999 }}
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative max-w-full max-h-full flex items-center justify-center">
+          <div className="relative w-full h-full flex items-center justify-center">
+            {/* Schließen Button (Oben Rechts) */}
             <button 
-              className="absolute -top-12 right-0 p-2 bg-white/10 hover:bg-[#f5ff00] hover:text-black rounded-full transition-all text-white"
+              className="absolute top-4 right-4 sm:top-8 sm:right-8 p-4 bg-white/5 hover:bg-[#f5ff00] hover:text-black rounded-full transition-all text-white border border-white/10 group flex items-center space-x-2 z-[100000]"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedImage(null);
               }}
             >
+              <span className="hidden sm:inline text-xs font-bold uppercase tracking-widest">Schließen</span>
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
             
+            {/* Das Bild selbst */}
             <img 
               src={selectedImage} 
-              alt="Zoom" 
-              className="max-w-[95vw] max-h-[85vh] object-contain rounded-lg shadow-2xl animate-zoom-in"
+              alt="Großansicht" 
+              className="max-w-[98vw] max-h-[90vh] sm:max-w-[90vw] sm:max-h-[85vh] object-contain rounded-xl shadow-[0_0_120px_rgba(0,0,0,1)] animate-zoom-in ring-1 ring-white/10"
               onClick={(e) => e.stopPropagation()}
             />
+            
+            {/* Hilfsklick-Hinweis (Desktop) */}
+            <div className="hidden sm:block absolute bottom-8 text-white/30 text-[10px] uppercase font-bold tracking-[0.3em]">
+              Klicke außerhalb des Bildes oder drücke ESC zum Schließen
+            </div>
           </div>
         </div>
       )}
 
       <style>{`
         @keyframes zoomIn {
-          from { transform: scale(0.95); opacity: 0; }
+          from { transform: scale(0.92); opacity: 0; }
           to { transform: scale(1); opacity: 1; }
         }
         .animate-zoom-in {
-          animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: zoomIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
     </div>
