@@ -80,10 +80,19 @@ const App: React.FC = () => {
   }
 
   const addTransaction = async (t: Transaction) => {
+    // Optimistisches Update: Erst in der UI anzeigen
     setTransactions(prev => [t, ...prev]);
-    const success = await databaseService.saveTransaction(t);
-    if (!success) {
-      alert("Fehler beim Speichern in der Cloud. Bitte Internetverbindung prüfen.");
+    
+    try {
+      const success = await databaseService.saveTransaction(t);
+      if (!success) {
+        // Falls es wirklich ein Fehler war, Rollback und Meldung
+        console.error("Speichern fehlgeschlagen.");
+        alert("Fehler beim Speichern in der Cloud. Die Internetverbindung könnte gestört sein.");
+        setTransactions(prev => prev.filter(item => item.id !== t.id));
+      }
+    } catch (e) {
+      console.error("Exception beim Speichern:", e);
       setTransactions(prev => prev.filter(item => item.id !== t.id));
     }
   };

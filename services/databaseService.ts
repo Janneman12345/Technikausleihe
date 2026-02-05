@@ -6,7 +6,6 @@ const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
 
 // Wir initialisieren den Client nur, wenn die URL vorhanden ist.
-// Das verhindert den Absturz ("supabaseUrl is required").
 export const supabase: SupabaseClient | null = supabaseUrl 
   ? createClient(supabaseUrl, supabaseAnonKey) 
   : null;
@@ -40,17 +39,23 @@ export const databaseService = {
     if (!supabase) return false;
 
     try {
-      const { error } = await supabase
+      // Wir senden den Insert-Befehl.
+      // Falls RLS 'Insert' erlaubt aber 'Select' verbietet, gibt Supabase einen Fehler zurück,
+      // obwohl die Daten gespeichert wurden. Wir prüfen daher primär den Status-Code.
+      const response = await supabase
         .from('transactions')
         .insert([transaction]);
 
-      if (error) {
-        console.error('Supabase Save Fehler:', error);
-        return false;
+      // Status 201 bedeutet 'Created'. In diesem Fall ignorieren wir mögliche Fehler-Objekte,
+      // die oft nur besagen, dass der Datensatz nicht zurückgelesen werden konnte.
+      if (response.status === 201 || response.status === 200 || !response.error) {
+        return true;
       }
-      return true;
+
+      console.error('Supabase Save Fehler Details:', response.error, 'Status:', response.status);
+      return false;
     } catch (e) {
-      console.error('Netzwerkfehler beim Speichern:', e);
+      console.error('Kritischer Netzwerkfehler beim Speichern:', e);
       return false;
     }
   },
