@@ -1,42 +1,11 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  useEffect(() => {
-    // Da Browser den Fullscreen-Modus nur nach einer echten Nutzerinteraktion erlauben,
-    // hängen wir einen Listener an das Dokument, der beim ersten Klick triggert.
-    const requestFullscreenOnInteraction = () => {
-      const doc = document.documentElement;
-      if (!document.fullscreenElement) {
-        doc.requestFullscreen()
-          .then(() => {
-            console.debug("Vollbild aktiviert.");
-          })
-          .catch((err) => {
-            console.debug(`Vollbild-Anfrage übersprungen: ${err.message}`);
-          });
-      }
-      // Listener entfernen, damit er nur einmal ausgeführt wird
-      window.removeEventListener('mousedown', requestFullscreenOnInteraction);
-      window.removeEventListener('touchstart', requestFullscreenOnInteraction);
-      window.removeEventListener('keydown', requestFullscreenOnInteraction);
-    };
-
-    window.addEventListener('mousedown', requestFullscreenOnInteraction);
-    window.addEventListener('touchstart', requestFullscreenOnInteraction, { passive: true });
-    window.addEventListener('keydown', requestFullscreenOnInteraction);
-
-    return () => {
-      window.removeEventListener('mousedown', requestFullscreenOnInteraction);
-      window.removeEventListener('touchstart', requestFullscreenOnInteraction);
-      window.removeEventListener('keydown', requestFullscreenOnInteraction);
-    };
-  }, []);
-
   return (
     <div className="min-h-screen flex flex-col bg-[#333132] text-white">
       {/* 
