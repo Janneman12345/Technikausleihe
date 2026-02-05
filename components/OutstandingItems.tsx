@@ -2,9 +2,7 @@
 import React, { useState } from 'react';
 import { Transaction } from '../types';
 
-interface OutstandingItemsProps {
-  items: Transaction[];
-}
+interface OutstandingItemsProps { items: Transaction[]; }
 
 const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -20,12 +18,15 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((item) => (
-          <div key={item.id} className="bg-[#3d3b3c] border border-[#f5ff00]/10 rounded-xl p-4 flex flex-col space-y-3 shadow-lg hover:border-[#f5ff00]/30 transition-all group">
+          <div key={item.id} className="bg-[#3d3b3c] border border-[#f5ff00]/10 rounded-xl p-4 flex flex-col space-y-3 shadow-lg hover:border-[#f5ff00]/30 transition-all group overflow-hidden">
             <div className="flex items-center space-x-4">
               {item.photo ? (
                 <div 
-                  onClick={() => setSelectedImage(item.photo || null)}
-                  className="h-16 w-16 rounded-lg overflow-hidden flex-shrink-0 border border-[#f5ff00]/10 bg-black cursor-zoom-in group-hover:ring-2 ring-[#f5ff00]/50 transition-all shadow-xl"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedImage(item.photo || null);
+                  }}
+                  className="h-16 w-16 rounded-lg overflow-hidden flex-shrink-0 border border-[#f5ff00]/10 bg-black cursor-zoom-in group-hover:ring-2 ring-emerald-500/50 transition-all shadow-xl"
                 >
                   <img src={item.photo} alt={item.item} className="h-full w-full object-cover" />
                 </div>
@@ -49,14 +50,11 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
               </div>
             </div>
 
-            {/* Smart Tip Preview in Card */}
+            {/* Smart Tip Preview in Card (Emerald Green) */}
             {(item.quickGuide || item.safetyNote) && (
               <div className="bg-emerald-500/5 rounded-lg p-2 text-[10px] border border-emerald-500/10">
                 <div className="flex items-center text-emerald-400 font-bold uppercase tracking-wider mb-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
-                  Tipp
+                  <span className="mr-1">✨</span> Tipp
                 </div>
                 <p className="text-gray-400 leading-snug line-clamp-2 italic">
                   "{item.quickGuide || item.safetyNote}"
