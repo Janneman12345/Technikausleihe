@@ -77,14 +77,14 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
       {/* FULLSCREEN BILD-ZOOM MODAL - MAXIMALER Z-INDEX (99999) */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 flex items-center justify-center p-4 bg-black/98 backdrop-blur-2xl animate-fade-in transition-all"
-          style={{ zIndex: 99999 }}
+          className="fixed inset-0 flex items-center justify-center p-4 bg-black/95 backdrop-blur-3xl animate-fade-in transition-all"
+          style={{ zIndex: 999999 }}
           onClick={() => setSelectedImage(null)}
         >
           <div className="relative w-full h-full flex items-center justify-center">
             {/* Schließen Button (Oben Rechts) */}
             <button 
-              className="absolute top-4 right-4 sm:top-8 sm:right-8 p-4 bg-white/5 hover:bg-[#f5ff00] hover:text-black rounded-full transition-all text-white border border-white/10 group flex items-center space-x-2 z-[100000]"
+              className="absolute top-4 right-4 sm:top-8 sm:right-8 p-4 bg-white/10 hover:bg-[#f5ff00] hover:text-black rounded-full transition-all text-white border border-white/10 group flex items-center space-x-2 z-[1000000]"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedImage(null);
@@ -100,13 +100,13 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
             <img 
               src={selectedImage} 
               alt="Großansicht" 
-              className="max-w-[98vw] max-h-[90vh] sm:max-w-[90vw] sm:max-h-[85vh] object-contain rounded-xl shadow-[0_0_120px_rgba(0,0,0,1)] animate-zoom-in ring-1 ring-white/10"
+              className="max-w-[98vw] max-h-[90vh] sm:max-w-[90vw] sm:max-h-[85vh] object-contain rounded-xl shadow-[0_0_150px_rgba(0,0,0,1)] animate-zoom-in ring-2 ring-white/5"
               onClick={(e) => e.stopPropagation()}
             />
             
             {/* Hilfsklick-Hinweis (Desktop) */}
-            <div className="hidden sm:block absolute bottom-8 text-white/30 text-[10px] uppercase font-bold tracking-[0.3em]">
-              Klicke außerhalb des Bildes oder drücke ESC zum Schließen
+            <div className="hidden sm:block absolute bottom-8 text-white/20 text-[10px] uppercase font-bold tracking-[0.4em]">
+              ESC oder Klick zum Schließen
             </div>
           </div>
         </div>
@@ -114,11 +114,11 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
 
       <style>{`
         @keyframes zoomIn {
-          from { transform: scale(0.92); opacity: 0; }
+          from { transform: scale(0.9); opacity: 0; }
           to { transform: scale(1); opacity: 1; }
         }
         .animate-zoom-in {
-          animation: zoomIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
     </div>

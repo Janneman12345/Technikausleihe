@@ -26,7 +26,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  // Verbesserte KI-Logik: Reagiert sofort und zeigt Ladezustand
+  // KI-Logik: Reagiert auf Eingabe mit 1 Sekunde Verzögerung
   useEffect(() => {
     const trimmedItem = item.trim();
     if (trimmedItem.length < 3) {
@@ -35,18 +35,15 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
       return;
     }
 
-    // Sofortiger Start des Ladestatus
     setIsTyping(true);
-    setInsight(null); // Alten Insight löschen während neu geladen wird
 
     const timeoutId = setTimeout(async () => {
       try {
         const result = await getSmartInsight(trimmedItem);
-        if (result) {
-          setInsight(result);
-        }
+        // Auch wenn result null ist, setzen wir isTyping auf false
+        setInsight(result);
       } catch (err) {
-        console.error("KI-Fehler beim Laden:", err);
+        console.error("Fehler im Insight-Loop:", err);
       } finally {
         setIsTyping(false);
       }
@@ -153,14 +150,14 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
           
           {/* Smaragd-Grüne KI-Box (Sichtbar beim Laden und bei Erfolg) */}
           {(isTyping || insight) && (
-            <div className={`mt-3 p-4 rounded-xl border transition-all duration-300 ${isTyping ? 'bg-emerald-500/5 border-emerald-500/20 animate-pulse' : 'bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.1)]'}`}>
+            <div className={`mt-3 p-4 rounded-xl border transition-all duration-500 ${isTyping ? 'bg-emerald-500/5 border-emerald-500/20 animate-pulse' : 'bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.1)]'}`}>
               {isTyping ? (
                 <div className="flex items-center space-x-3 text-emerald-400/60">
                   <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-[10px] font-black uppercase tracking-widest">KI analysiert Gerät...</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest">Analysiere Gerät...</span>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-2 animate-fade-in">
                   <div className="flex items-center space-x-2 text-emerald-400">
                     <span className="text-base">✨</span>
                     <span className="text-[10px] font-black uppercase tracking-widest">{insight?.category || 'Technik'}</span>
