@@ -26,7 +26,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  // Live-AI Tipps mit robustem Loading-Management
+  // AI-Logik mit verbessertem Feedback und Timeout-Schutz
   useEffect(() => {
     if (item.trim().length < 3) {
       setInsight(null);
@@ -34,26 +34,25 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
       return;
     }
 
+    // Zeige sofort den Spinner an, wenn der Nutzer tippt
+    setIsTyping(true);
+    setInsight(null);
+
     const timeoutId = setTimeout(async () => {
-      setIsTyping(true);
       try {
         const result = await getSmartInsight(item);
-        setInsight(result);
+        if (result) {
+          setInsight(result);
+        }
       } catch (err) {
-        console.error("Error fetching insights:", err);
-        setInsight(null);
+        console.error("Fetch failed", err);
       } finally {
         setIsTyping(false);
       }
-    }, 800);
+    }, 1000); // 1 Sekunde warten nach der letzten Eingabe
 
     return () => clearTimeout(timeoutId);
   }, [item]);
-
-  useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    setDate(today);
-  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -103,7 +102,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
     <div className="bg-[#333132] rounded-2xl shadow-2xl border border-[#f5ff00]/20 overflow-hidden h-full">
       <div className="bg-[#3d3b3c] border-b border-[#f5ff00]/20 px-6 py-4">
         <h2 className="text-lg font-semibold text-[#f5ff00]">Neuer Vorgang</h2>
-        <p className="text-sm text-gray-400">Wer leiht was aus?</p>
+        <p className="text-sm text-gray-400">Gegenstand erfassen</p>
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-5">
@@ -126,7 +125,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Wer bist du?</label>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Person</label>
           <select required value={person} onChange={(e) => setPerson(e.target.value)} className="w-full rounded-lg bg-[#3d3b3c] border-[#f5ff00]/30 text-white shadow-sm border px-3 py-2 outline-none appearance-none cursor-pointer">
             <option value="" disabled>Name auswählen...</option>
             {PERSONS.map(p => <option key={p} value={p}>{p}</option>)}
@@ -145,24 +144,24 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
               className="w-full rounded-lg bg-[#3d3b3c] border-[#f5ff00]/30 text-white placeholder-gray-500 shadow-sm border px-3 py-2 outline-none" 
             />
             {isTyping && (
-              <div className="absolute right-3 top-2.5">
+              <div className="absolute right-3 top-2.5 flex items-center">
                 <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
               </div>
             )}
           </div>
           
-          {/* Smart Insights Block - EMERALD GREEN */}
+          {/* KI-TIPPS BLOCK IN SMARAGD-GRÜN */}
           {insight && (
-            <div className="mt-3 p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/30 space-y-2 animate-fade-in">
+            <div className="mt-3 p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/40 space-y-2 animate-fade-in shadow-[0_0_20px_rgba(16,185,129,0.05)]">
               <div className="flex items-center space-x-2 text-emerald-400">
-                <span className="text-lg">✨</span>
+                <span className="text-base">✨</span>
                 <span className="text-[10px] font-black uppercase tracking-widest">{insight.category}</span>
               </div>
-              <div className="text-xs text-emerald-50/90 leading-relaxed italic">
-                <p>"{insight.quickGuide}"</p>
+              <div className="text-xs text-emerald-50 leading-relaxed italic border-l-2 border-emerald-500/30 pl-3">
+                <p className="mb-1.5">"{insight.quickGuide}"</p>
                 {insight.safetyNote && (
-                  <p className="mt-2 text-emerald-400 font-medium not-italic">
-                    <span className="mr-1">⚠️</span> {insight.safetyNote}
+                  <p className="text-emerald-400 font-bold not-italic text-[10px] uppercase tracking-wide">
+                    ⚠️ {insight.safetyNote}
                   </p>
                 )}
               </div>
@@ -172,11 +171,11 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
 
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">Bemerkungen</label>
-          <textarea rows={2} placeholder="Zubehör dabei? Zustand okay?" value={remarks} onChange={(e) => setRemarks(e.target.value)} className="w-full rounded-lg bg-[#3d3b3c] border-[#f5ff00]/30 text-white placeholder-gray-500 border px-3 py-2 outline-none resize-none" />
+          <textarea rows={2} placeholder="Zubehör? Zustand?" value={remarks} onChange={(e) => setRemarks(e.target.value)} className="w-full rounded-lg bg-[#3d3b3c] border-[#f5ff00]/30 text-white placeholder-gray-500 border px-3 py-2 outline-none resize-none" />
         </div>
 
         <div className="space-y-3">
-          <label className="block text-sm font-medium text-gray-300 mb-1">Foto dokumentieren</label>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Dokumentation</label>
           <input type="file" accept="image/*" ref={galleryInputRef} onChange={handleFileChange} className="hidden" />
           <input type="file" accept="image/*" capture="environment" ref={cameraInputRef} onChange={handleFileChange} className="hidden" />
 

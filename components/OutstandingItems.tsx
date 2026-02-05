@@ -18,7 +18,7 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((item) => (
-          <div key={item.id} className="bg-[#3d3b3c] border border-[#f5ff00]/10 rounded-xl p-4 flex flex-col space-y-3 shadow-lg hover:border-[#f5ff00]/30 transition-all group overflow-hidden">
+          <div key={item.id} className="bg-[#3d3b3c] border border-[#f5ff00]/10 rounded-xl p-4 flex flex-col space-y-3 shadow-lg transition-all group overflow-hidden">
             <div className="flex items-center space-x-4">
               {item.photo ? (
                 <div 
@@ -26,7 +26,7 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
                     e.stopPropagation();
                     setSelectedImage(item.photo || null);
                   }}
-                  className="h-16 w-16 rounded-lg overflow-hidden flex-shrink-0 border border-[#f5ff00]/10 bg-black cursor-zoom-in group-hover:ring-2 ring-emerald-500/50 transition-all shadow-xl"
+                  className="h-16 w-16 rounded-lg overflow-hidden flex-shrink-0 border border-[#f5ff00]/20 bg-black cursor-zoom-in hover:ring-2 ring-emerald-500/50 transition-all shadow-xl"
                 >
                   <img src={item.photo} alt={item.item} className="h-full w-full object-cover pointer-events-none" />
                 </div>
@@ -50,9 +50,9 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
               </div>
             </div>
 
-            {/* Smart Tip Preview in Card (Emerald Green) */}
+            {/* Smart Tip in Card */}
             {(item.quickGuide || item.safetyNote) && (
-              <div className="bg-emerald-500/5 rounded-lg p-2 text-[10px] border border-emerald-500/10">
+              <div className="bg-emerald-500/5 rounded-lg p-2.5 text-[10px] border border-emerald-500/20">
                 <div className="flex items-center text-emerald-400 font-bold uppercase tracking-wider mb-1">
                   <span className="mr-1">✨</span> Tipp
                 </div>
@@ -65,15 +65,15 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
         ))}
       </div>
 
-      {/* Reines Bild-Zoom Lightbox Modal */}
+      {/* REINE BILD-LIGHTBOX */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-10 bg-black/95 backdrop-blur-xl animate-fade-in"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-fade-in"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative max-w-5xl w-full h-full flex items-center justify-center">
+          <div className="relative max-w-full max-h-full flex items-center justify-center">
             <button 
-              className="absolute top-0 right-0 m-4 p-3 bg-white/10 hover:bg-[#f5ff00] hover:text-black rounded-full transition-all text-white z-[110]"
+              className="absolute -top-12 right-0 p-2 bg-white/10 hover:bg-[#f5ff00] hover:text-black rounded-full transition-all text-white"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedImage(null);
@@ -86,8 +86,8 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
             
             <img 
               src={selectedImage} 
-              alt="Vergrößerte Ansicht" 
-              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-zoom-in"
+              alt="Zoom" 
+              className="max-w-[95vw] max-h-[85vh] object-contain rounded-lg shadow-2xl animate-zoom-in"
               onClick={(e) => e.stopPropagation()}
             />
           </div>
@@ -96,11 +96,11 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
 
       <style>{`
         @keyframes zoomIn {
-          from { transform: scale(0.9); opacity: 0; }
+          from { transform: scale(0.95); opacity: 0; }
           to { transform: scale(1); opacity: 1; }
         }
         .animate-zoom-in {
-          animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
     </div>

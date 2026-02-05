@@ -8,11 +8,11 @@ export const getSmartInsight = async (itemName: string): Promise<SmartTip | null
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Erstelle technische Kurzinformationen für das Gerät: "${itemName}".
-      Anforderungen:
-      1. Sprache: Deutsch, informell ("du").
-      2. Format: Strenges JSON.
-      3. Felder: "category" (z.B. Audio, Video), "safetyNote" (ein kurzer Warnhinweis), "quickGuide" (ein praktischer Bedien-Tipp).`,
+      contents: `Analysiere kurz: "${itemName}". Antworte NUR im JSON-Format.
+      JSON Felder: 
+      "category": (z.B. Audio, Licht, Kamera),
+      "safetyNote": (Ein kurzer Warnhinweis, du-Form),
+      "quickGuide": (Ein praktischer Bedien-Tipp, du-Form).`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -29,13 +29,18 @@ export const getSmartInsight = async (itemName: string): Promise<SmartTip | null
 
     const text = response.text;
     if (text) {
-      // Entferne potentielle Markdown-Code-Blöcke, falls das Modell sie trotz JSON-Modus liefert
+      // Robustes Parsing
       const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      return JSON.parse(cleanJson) as SmartTip;
+      const parsed = JSON.parse(cleanJson);
+      return {
+        category: parsed.category || "Technik",
+        safetyNote: parsed.safetyNote || "",
+        quickGuide: parsed.quickGuide || ""
+      };
     }
     return null;
   } catch (error) {
-    console.error("Gemini Error:", error);
+    console.error("Gemini Insight Error:", error);
     return null;
   }
 };
