@@ -135,7 +135,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Wer ist es?</label>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Wer bist du?</label>
           <select
             required
             value={person}
