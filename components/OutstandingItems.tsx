@@ -7,7 +7,7 @@ interface OutstandingItemsProps { items: Transaction[]; }
 const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  // Tastatur-Support für ESC zum Schließen
+  // Schließen bei Druck auf die ESC-Taste
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setSelectedImage(null);
@@ -62,45 +62,54 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
         ))}
       </div>
 
-      {/* FULLSCREEN BILD-ZOOM MODAL */}
+      {/* FULLSCREEN BILD-ZOOM MODAL - Z-INDEX FIX UND ZENTRIERUNG */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 flex items-center justify-center p-4 bg-black/95 backdrop-blur-3xl animate-fade-in transition-all"
-          style={{ zIndex: 999999 }}
+          className="fixed inset-0 flex items-center justify-center bg-black/95 backdrop-blur-3xl animate-fade-in"
+          style={{ zIndex: 10000 }} // Deutlich höher als der Header (z-50)
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative w-full h-full flex items-center justify-center">
-            {/* Schließen Button */}
+          <div className="relative w-full h-full flex flex-col items-center justify-center p-4">
+            
+            {/* Das zentrierte Bild */}
+            <div className="relative flex items-center justify-center max-w-full max-h-full">
+              <img 
+                src={selectedImage} 
+                alt="Großansicht" 
+                className="max-w-[95vw] max-h-[80vh] sm:max-w-[85vw] sm:max-h-[85vh] object-contain rounded-xl shadow-[0_0_100px_rgba(0,0,0,0.8)] animate-zoom-in ring-1 ring-white/10"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+
+            {/* Schließen Button - Unten Rechts */}
             <button 
-              className="absolute top-4 right-4 sm:top-8 sm:right-8 p-4 bg-white/10 hover:bg-[#f5ff00] hover:text-black rounded-full transition-all text-white border border-white/10 group flex items-center space-x-2 z-[1000000]"
+              className="fixed bottom-8 right-8 flex items-center space-x-3 bg-white text-black px-8 py-4 rounded-full font-bold shadow-2xl hover:bg-[#f5ff00] transition-all transform active:scale-95 z-[10001] group"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedImage(null);
               }}
             >
-              <span className="hidden sm:inline text-xs font-bold uppercase tracking-widest">Schließen</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+              <span className="text-sm uppercase tracking-widest">Schließen</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:rotate-90 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
             
-            <img 
-              src={selectedImage} 
-              alt="Großansicht" 
-              className="max-w-[98vw] max-h-[90vh] sm:max-w-[90vw] sm:max-h-[85vh] object-contain rounded-xl shadow-[0_0_150px_rgba(0,0,0,1)] animate-zoom-in ring-2 ring-white/5"
-              onClick={(e) => e.stopPropagation()}
-            />
+            {/* Hinweis für ESC-Taste am Desktop */}
+            <div className="hidden sm:block absolute bottom-8 left-1/2 -translate-x-1/2 text-white/30 text-[10px] uppercase font-bold tracking-[0.4em] pointer-events-none">
+              ESC zum Schließen
+            </div>
           </div>
         </div>
       )}
 
       <style>{`
         @keyframes zoomIn {
-          from { transform: scale(0.9); opacity: 0; }
+          from { transform: scale(0.95); opacity: 0; }
           to { transform: scale(1); opacity: 1; }
         }
         .animate-zoom-in {
-          animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
     </div>
