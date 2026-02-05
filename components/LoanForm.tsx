@@ -1,6 +1,7 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { TransactionType, Transaction } from '../types';
+import { getSmartInsight } from '../services/geminiService';
 
 interface LoanFormProps {
   onAddTransaction: (transaction: Transaction) => void;
@@ -8,7 +9,7 @@ interface LoanFormProps {
 
 const PERSONS = [
   "Beno", "Anne", "Julian", "Tadej", "Louisa", 
-  "Latta", "Jamie", "Louis", "Jan"
+  "Lotta", "Jamie", "Louis", "Jan"
 ].sort();
 
 const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
@@ -18,10 +19,29 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
   const [remarks, setRemarks] = useState('');
   const [photo, setPhoto] = useState<string | undefined>(undefined);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [handlingTip, setHandlingTip] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingTip, setIsLoadingTip] = useState(false);
   
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const trimmedItem = item.trim();
+    if (trimmedItem.length < 3) {
+      setHandlingTip(undefined);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setIsLoadingTip(true);
+      const tip = await getSmartInsight(trimmedItem);
+      setHandlingTip(tip || undefined);
+      setIsLoadingTip(false);
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, [item]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -52,6 +72,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
       person,
       remarks,
       photo,
+      handlingTip,
       timestamp: Date.now()
     };
 
@@ -60,6 +81,7 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
       setItem('');
       setRemarks('');
       setPhoto(undefined);
+      setHandlingTip(undefined);
       setIsSubmitting(false);
     }, 400);
   };
@@ -108,6 +130,20 @@ const LoanForm: React.FC<LoanFormProps> = ({ onAddTransaction }) => {
             onChange={(e) => setItem(e.target.value)} 
             className="w-full rounded-xl bg-[#3d3b3c] border-[#f5ff00]/30 text-white placeholder-gray-600 shadow-sm border px-4 py-3 outline-none focus:border-[#f5ff00]/60 transition-colors" 
           />
+          
+          {(handlingTip || isLoadingTip) && (
+            <div className="mt-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 animate-fade-in flex items-start space-x-3">
+              <span className="text-emerald-400 text-xs mt-0.5">💡</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] text-emerald-400 font-black uppercase tracking-widest mb-1">Set-Tipp zur Langlebigkeit</p>
+                {isLoadingTip ? (
+                  <div className="h-4 w-24 bg-emerald-500/20 rounded animate-pulse"></div>
+                ) : (
+                  <p className="text-xs text-white italic leading-relaxed">"{handlingTip}"</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div>

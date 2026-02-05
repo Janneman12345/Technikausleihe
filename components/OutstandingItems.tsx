@@ -15,7 +15,6 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
     return () => window.removeEventListener('keydown', handleEsc);
   }, []);
 
-  // Verhindert Scrollen des Hintergrunds, wenn das Bild offen ist
   useEffect(() => {
     if (selectedImage) {
       document.body.style.overflow = 'hidden';
@@ -69,17 +68,24 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
                 </div>
               </div>
             </div>
+
+            {item.handlingTip && (
+              <div className="bg-emerald-500/10 border-l-2 border-emerald-500/40 p-3 rounded-r-lg">
+                <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1 flex items-center">
+                   <span className="mr-1.5">🛡️</span> Langlebigkeits-Check
+                </p>
+                <p className="text-xs text-white/90 leading-tight italic font-medium">"{item.handlingTip}"</p>
+              </div>
+            )}
           </div>
         ))}
       </div>
 
-      {/* IMMERSIVES FULLSCREEN MODAL - BILD GROSS AUFGEZOGEN */}
       {selectedImage && (
         <div 
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl transition-all animate-fade-in cursor-zoom-out"
           onClick={() => setSelectedImage(null)}
         >
-          {/* Header Actions */}
           <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center pointer-events-none z-[110]">
             <div className="text-white/40 text-[10px] font-black uppercase tracking-[0.4em] hidden md:block pl-4">
               HD Detailansicht • Schließen mit ESC oder Klick
@@ -97,7 +103,6 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
             </button>
           </div>
 
-          {/* Bild-Container - "Zieht das Bild groß auf" */}
           <div className="w-full h-full flex items-center justify-center p-2 md:p-8">
             <div className="relative max-w-full max-h-full flex items-center justify-center">
                <img 
@@ -109,7 +114,6 @@ const OutstandingItems: React.FC<OutstandingItemsProps> = ({ items }) => {
             </div>
           </div>
           
-          {/* Mobile Info */}
           <div className="absolute bottom-10 left-0 right-0 text-center md:hidden pointer-events-none opacity-50">
             <span className="text-white text-[9px] font-black uppercase tracking-[0.3em] bg-white/5 px-4 py-2 rounded-full border border-white/10">
               Tippen zum Schließen

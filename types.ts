@@ -13,4 +13,5 @@ export interface Transaction {
   remarks: string;
   photo?: string;
   timestamp: number;
+  handlingTip?: string; // Profi-Tipp der KI für Langlebigkeit
 }

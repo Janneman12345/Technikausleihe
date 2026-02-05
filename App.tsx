@@ -13,22 +13,24 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const isConfigured = databaseService.isConfigured();
 
-  const SQL_SNIPPET = `-- 1. ALTE TABELLE LÖSCHEN
-DROP TABLE IF EXISTS transactions;
+  const SQL_SNIPPET = `-- 1. TABELLE AKTUALISIEREN (Falls sie bereits existiert)
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS handling_tip TEXT;
 
--- 2. TABELLE NEU ANLEGEN
-CREATE TABLE transactions (
-  id TEXT PRIMARY KEY,
-  type TEXT NOT NULL,
-  date TEXT NOT NULL,
-  item TEXT NOT NULL,
-  person TEXT NOT NULL,
-  remarks TEXT,
-  photo TEXT,
-  timestamp BIGINT NOT NULL
-);
+-- ODER KOMPLETT NEU ANLEGEN (Löscht alte Daten!)
+-- DROP TABLE IF EXISTS transactions;
+-- CREATE TABLE transactions (
+--   id TEXT PRIMARY KEY,
+--   type TEXT NOT NULL,
+--   date TEXT NOT NULL,
+--   item TEXT NOT NULL,
+--   person TEXT NOT NULL,
+--   remarks TEXT,
+--   photo TEXT,
+--   handling_tip TEXT,
+--   timestamp BIGINT NOT NULL
+-- );
 
--- 3. ZUGRIFFSRECHTE
+-- ZUGRIFFSRECHTE SICHERSTELLEN
 ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public Read" ON transactions FOR SELECT USING (true);
 CREATE POLICY "Public Insert" ON transactions FOR INSERT WITH CHECK (true);
@@ -57,7 +59,7 @@ CREATE POLICY "Public Delete" ON transactions FOR DELETE USING (true);`;
             <div className="space-y-6 text-center">
               <p className="text-gray-400">Bitte richte zuerst deine Umgebungsvariablen in Vercel ein.</p>
               <div className="bg-black/20 p-6 rounded-2xl border border-white/5 text-left">
-                <h3 className="text-white font-bold mb-3">Tabelle anlegen:</h3>
+                <h3 className="text-white font-bold mb-3">Tabelle anlegen / aktualisieren:</h3>
                 <pre className="bg-[#2b292a] p-4 rounded-xl text-[10px] text-[#f5ff00] font-mono overflow-x-auto border border-[#f5ff00]/30 shadow-inner">
                   {SQL_SNIPPET}
                 </pre>
