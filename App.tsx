@@ -43,11 +43,11 @@ const App: React.FC = () => {
             <div className="text-left space-y-4 mb-10">
               <div className="flex items-start space-x-4">
                 <div className="bg-[#f5ff00] text-[#333132] font-bold rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-1">1</div>
-                <p className="text-sm text-gray-300">Gehe zu <strong>supabase.com</strong>, erstelle ein Projekt und kopiere unter Settings > API die <strong>URL</strong> und den <strong>anon key</strong>.</p>
+                <p className="text-sm text-gray-300">Gehe zu <strong>supabase.com</strong>, erstelle ein Projekt und kopiere unter Settings &gt; API die <strong>URL</strong> und den <strong>anon key</strong>.</p>
               </div>
               <div className="flex items-start space-x-4">
                 <div className="bg-[#f5ff00] text-[#333132] font-bold rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-1">2</div>
-                <p className="text-sm text-gray-300">Öffne dein Projekt in <strong>Vercel</strong> > Settings > Environment Variables.</p>
+                <p className="text-sm text-gray-300">Öffne dein Projekt in <strong>Vercel</strong> &gt; Settings &gt; Environment Variables.</p>
               </div>
               <div className="flex items-start space-x-4">
                 <div className="bg-[#f5ff00] text-[#333132] font-bold rounded-full h-6 w-6 flex items-center justify-center flex-shrink-0 mt-1">3</div>
